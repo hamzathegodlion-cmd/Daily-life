@@ -1,0 +1,142 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User routine goals, TTS voice preferences, and alarm configuration synced across devices.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Authenticated user UID" },
+        "displayName": { "type": "string", "description": "User display name" },
+        "quranWirdJuz": { "type": "integer", "description": "Daily Quran Wird target in Juz" },
+        "quranMurajaahPages": { "type": "integer", "description": "Daily Quran Muraja'a target in Safha pages" },
+        "cyclingTargetKm": { "type": "number", "description": "Approximate cycling journey distance in km" },
+        "youtubeDailyVideos": { "type": "integer", "description": "Daily YouTube video edit and upload goal" },
+        "pushupGoal": { "type": "integer", "description": "Editable personal push-up target" },
+        "ttsEnabled": { "type": "boolean", "description": "Enable spoken announcements" },
+        "ttsSpeed": { "type": "number", "description": "Speech rate multiplier" },
+        "ttsPitch": { "type": "number", "description": "Speech pitch multiplier" },
+        "ttsVoiceName": { "type": "string", "description": "Preferred English TTS voice identifier" },
+        "ttsRepetitions": { "type": "integer", "description": "Number of spoken repetitions" },
+        "ttsDelaySeconds": { "type": "integer", "description": "Delay between repetitions in seconds" },
+        "alarmVolume": { "type": "number", "description": "Alarm playback volume 0.0 to 1.0" },
+        "vibrationEnabled": { "type": "boolean", "description": "Enable vibration with alarms" },
+        "soundEnabled": { "type": "boolean", "description": "Enable alarm sound" },
+        "soundDurationSeconds": { "type": "integer", "description": "Alarm sound duration in seconds" },
+        "snoozeMinutes": { "type": "integer", "description": "Snooze duration in minutes" },
+        "themeMode": { "type": "string", "enum": ["DARK", "LIGHT", "SYSTEM"] },
+        "use24HourFormat": { "type": "boolean", "description": "Display 24-hour vs 12-hour AM/PM" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on create" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on update" }
+      },
+      "required": [
+        "userId", "displayName", "quranWirdJuz", "quranMurajaahPages", "cyclingTargetKm",
+        "youtubeDailyVideos", "pushupGoal", "ttsEnabled", "ttsSpeed", "ttsPitch",
+        "ttsVoiceName", "ttsRepetitions", "ttsDelaySeconds", "alarmVolume",
+        "vibrationEnabled", "soundEnabled", "soundDurationSeconds", "snoozeMinutes",
+        "themeMode", "use24HourFormat", "createdAt", "updatedAt"
+      ]
+    },
+    "RoutineActivity": {
+      "title": "RoutineActivity",
+      "description": "Scheduled daily or weekday-specific routine activity with alarm and TTS announcement settings.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": {
+          "type": "string",
+          "enum": ["WAKE_UP", "MOSQUE", "QURAN", "SPORT", "LEARNING", "CYCLING", "KITAB", "YOUTUBE", "STUDY", "WEB_DEV", "DAILY_CHECK", "SLEEP", "CUSTOM"]
+        },
+        "startHour": { "type": "integer" },
+        "startMinute": { "type": "integer" },
+        "endHour": { "type": "integer" },
+        "endMinute": { "type": "integer" },
+        "weekdaysMask": { "type": "integer", "description": "7-bit weekday bitmask (bit 0=Sunday .. bit 6=Saturday)" },
+        "repeatWeekly": { "type": "boolean" },
+        "alarmEnabled": { "type": "boolean" },
+        "soundKey": { "type": "string" },
+        "announcementText": { "type": "string" },
+        "sortOrder": { "type": "integer" },
+        "defaultKey": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId", "title", "description", "category", "startHour", "startMinute",
+        "endHour", "endMinute", "weekdaysMask", "repeatWeekly", "alarmEnabled",
+        "soundKey", "announcementText", "sortOrder", "defaultKey", "createdAt", "updatedAt"
+      ]
+    },
+    "CompletionRecord": {
+      "title": "CompletionRecord",
+      "description": "Daily completion status and activity-specific progress metrics for a scheduled activity.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "dateKey": { "type": "string", "description": "ISO date yyyy-MM-dd" },
+        "activityId": { "type": "string" },
+        "status": { "type": "string", "enum": ["COMPLETED", "INCOMPLETE", "MISSED"] },
+        "completedAtMillis": { "type": "integer" },
+        "notes": { "type": "string" },
+        "quranWirdDone": { "type": "integer" },
+        "quranMurajaahDone": { "type": "integer" },
+        "cyclingDistanceKm": { "type": "number" },
+        "cyclingDurationMin": { "type": "integer" },
+        "sleepDurationMin": { "type": "integer" },
+        "v1Edited": { "type": "boolean" },
+        "v1Uploaded": { "type": "boolean" },
+        "v2Edited": { "type": "boolean" },
+        "v2Uploaded": { "type": "boolean" },
+        "studyMinutes": { "type": "integer" },
+        "webMinutes": { "type": "integer" },
+        "workoutCompletedCount": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId", "dateKey", "activityId", "status", "completedAtMillis", "notes",
+        "quranWirdDone", "quranMurajaahDone", "cyclingDistanceKm", "cyclingDurationMin",
+        "sleepDurationMin", "v1Edited", "v1Uploaded", "v2Edited", "v2Uploaded",
+        "studyMinutes", "webMinutes", "workoutCompletedCount", "createdAt", "updatedAt"
+      ]
+    },
+    "WorkoutPlan": {
+      "title": "WorkoutPlan",
+      "description": "Day-aware workout plan (Group A, Group B, or Sunday Rest).",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "groupName": { "type": "string" },
+        "focusArea": { "type": "string" },
+        "weekdaysMask": { "type": "integer" },
+        "restDay": { "type": "boolean" },
+        "exerciseItems": { "type": "array", "description": "Bounded list of serialized exercise items" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId", "groupName", "focusArea", "weekdaysMask", "restDay",
+        "exerciseItems", "createdAt", "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User routine profile, preferences, and goals."
+    },
+    "/users/{userId}/activities/{activityId}": {
+      "schema": { "$ref": "#/entities/RoutineActivity" },
+      "description": "User routine activities synced in real time across devices."
+    },
+    "/users/{userId}/completions/{recordId}": {
+      "schema": { "$ref": "#/entities/CompletionRecord" },
+      "description": "Daily completion records and tracker logs."
+    },
+    "/users/{userId}/workoutPlans/{planId}": {
+      "schema": { "$ref": "#/entities/WorkoutPlan" },
+      "description": "Weekly Group A, Group B, and Rest Day workout configurations."
+    }
+  }
+}

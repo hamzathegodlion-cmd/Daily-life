@@ -1,0 +1,6 @@
+{
+  "name": "My Daily Life Assistant",
+  "description": "Personal daily routine, weekly schedule, smart voice alarms, workout, study, and progress assistant with real-time cloud sync.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

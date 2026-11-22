@@ -1,0 +1,228 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidUserProfile(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.displayName is string && data.displayName.size() <= 100 &&
+             data.quranWirdJuz is int && data.quranWirdJuz >= 1 && data.quranWirdJuz <= 30 &&
+             data.quranMurajaahPages is int && data.quranMurajaahPages >= 1 && data.quranMurajaahPages <= 604 &&
+             data.cyclingTargetKm is number && data.cyclingTargetKm >= 0.5 && data.cyclingTargetKm <= 300.0 &&
+             data.youtubeDailyVideos is int && data.youtubeDailyVideos >= 1 && data.youtubeDailyVideos <= 20 &&
+             data.pushupGoal is int && data.pushupGoal >= 1 && data.pushupGoal <= 500 &&
+             data.ttsEnabled is bool &&
+             data.ttsSpeed is number && data.ttsSpeed >= 0.5 && data.ttsSpeed <= 2.0 &&
+             data.ttsPitch is number && data.ttsPitch >= 0.5 && data.ttsPitch <= 2.0 &&
+             data.ttsVoiceName is string && data.ttsVoiceName.size() <= 120 &&
+             data.ttsRepetitions is int && data.ttsRepetitions >= 1 && data.ttsRepetitions <= 10 &&
+             data.ttsDelaySeconds is int && data.ttsDelaySeconds >= 1 && data.ttsDelaySeconds <= 30 &&
+             data.alarmVolume is number && data.alarmVolume >= 0.0 && data.alarmVolume <= 1.0 &&
+             data.vibrationEnabled is bool &&
+             data.soundEnabled is bool &&
+             data.soundDurationSeconds is int && data.soundDurationSeconds >= 3 && data.soundDurationSeconds <= 120 &&
+             data.snoozeMinutes is int && data.snoozeMinutes >= 1 && data.snoozeMinutes <= 60 &&
+             data.themeMode in ['DARK', 'LIGHT', 'SYSTEM'] &&
+             data.use24HourFormat is bool;
+    }
+
+    function isValidRoutineActivity(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+             data.description is string && data.description.size() <= 500 &&
+             data.category in [
+               'WAKE_UP', 'MOSQUE', 'QURAN', 'SPORT', 'LEARNING', 'CYCLING',
+               'KITAB', 'YOUTUBE', 'STUDY', 'WEB_DEV', 'DAILY_CHECK', 'SLEEP', 'CUSTOM'
+             ] &&
+             data.startHour is int && data.startHour >= 0 && data.startHour <= 23 &&
+             data.startMinute is int && data.startMinute >= 0 && data.startMinute <= 59 &&
+             data.endHour is int && data.endHour >= 0 && data.endHour <= 23 &&
+             data.endMinute is int && data.endMinute >= 0 && data.endMinute <= 59 &&
+             data.weekdaysMask is int && data.weekdaysMask >= 0 && data.weekdaysMask <= 127 &&
+             data.repeatWeekly is bool &&
+             data.alarmEnabled is bool &&
+             data.soundKey is string && data.soundKey.size() >= 1 && data.soundKey.size() <= 60 &&
+             data.announcementText is string && data.announcementText.size() <= 600 &&
+             data.sortOrder is int && data.sortOrder >= 0 && data.sortOrder <= 1000 &&
+             data.defaultKey is string && data.defaultKey.size() <= 80;
+    }
+
+    function isValidCompletionRecord(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.dateKey is string && data.dateKey.size() == 10 &&
+             data.activityId is string && data.activityId.size() >= 1 && data.activityId.size() <= 128 &&
+             data.status in ['COMPLETED', 'INCOMPLETE', 'MISSED'] &&
+             data.completedAtMillis is int && data.completedAtMillis >= 0 &&
+             data.notes is string && data.notes.size() <= 1000 &&
+             data.quranWirdDone is int && data.quranWirdDone >= 0 && data.quranWirdDone <= 30 &&
+             data.quranMurajaahDone is int && data.quranMurajaahDone >= 0 && data.quranMurajaahDone <= 604 &&
+             data.cyclingDistanceKm is number && data.cyclingDistanceKm >= 0.0 && data.cyclingDistanceKm <= 500.0 &&
+             data.cyclingDurationMin is int && data.cyclingDurationMin >= 0 && data.cyclingDurationMin <= 1440 &&
+             data.sleepDurationMin is int && data.sleepDurationMin >= 0 && data.sleepDurationMin <= 1440 &&
+             data.v1Edited is bool &&
+             data.v1Uploaded is bool &&
+             data.v2Edited is bool &&
+             data.v2Uploaded is bool &&
+             data.studyMinutes is int && data.studyMinutes >= 0 && data.studyMinutes <= 1440 &&
+             data.webMinutes is int && data.webMinutes >= 0 && data.webMinutes <= 1440 &&
+             data.workoutCompletedCount is int && data.workoutCompletedCount >= 0 && data.workoutCompletedCount <= 20;
+    }
+
+    function isValidWorkoutPlan(data, userId) {
+      return data.userId is string && data.userId == userId &&
+             data.groupName is string && data.groupName.size() >= 1 && data.groupName.size() <= 60 &&
+             data.focusArea is string && data.focusArea.size() >= 1 && data.focusArea.size() <= 120 &&
+             data.weekdaysMask is int && data.weekdaysMask >= 0 && data.weekdaysMask <= 127 &&
+             data.restDay is bool &&
+             data.exerciseItems is list && data.exerciseItems.size() <= 20 &&
+             (data.exerciseItems.size() == 0 || data.exerciseItems[0] is string);
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && isValidId(userId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'displayName', 'quranWirdJuz', 'quranMurajaahPages', 'cyclingTargetKm',
+                         'youtubeDailyVideos', 'pushupGoal', 'ttsEnabled', 'ttsSpeed', 'ttsPitch',
+                         'ttsVoiceName', 'ttsRepetitions', 'ttsDelaySeconds', 'alarmVolume',
+                         'vibrationEnabled', 'soundEnabled', 'soundDurationSeconds', 'snoozeMinutes',
+                         'themeMode', 'use24HourFormat', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'displayName', 'quranWirdJuz', 'quranMurajaahPages', 'cyclingTargetKm',
+                         'youtubeDailyVideos', 'pushupGoal', 'ttsEnabled', 'ttsSpeed', 'ttsPitch',
+                         'ttsVoiceName', 'ttsRepetitions', 'ttsDelaySeconds', 'alarmVolume',
+                         'vibrationEnabled', 'soundEnabled', 'soundDurationSeconds', 'snoozeMinutes',
+                         'themeMode', 'use24HourFormat', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidUserProfile(incoming(), userId) &&
+                       incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time;
+      allow update: if isSignedIn() && isValidUserProfile(incoming(), userId) && isOwner(userId) &&
+                       isValidId(userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'displayName', 'quranWirdJuz', 'quranMurajaahPages', 'cyclingTargetKm',
+                         'youtubeDailyVideos', 'pushupGoal', 'ttsEnabled', 'ttsSpeed', 'ttsPitch',
+                         'ttsVoiceName', 'ttsRepetitions', 'ttsDelaySeconds', 'alarmVolume',
+                         'vibrationEnabled', 'soundEnabled', 'soundDurationSeconds', 'snoozeMinutes',
+                         'themeMode', 'use24HourFormat', 'updatedAt'
+                       ]);
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      match /activities/{activityId} {
+        allow get: if isOwner(userId) && isValidId(activityId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(activityId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'title', 'description', 'category', 'startHour', 'startMinute',
+                           'endHour', 'endMinute', 'weekdaysMask', 'repeatWeekly', 'alarmEnabled',
+                           'soundKey', 'announcementText', 'sortOrder', 'defaultKey', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'title', 'description', 'category', 'startHour', 'startMinute',
+                           'endHour', 'endMinute', 'weekdaysMask', 'repeatWeekly', 'alarmEnabled',
+                           'soundKey', 'announcementText', 'sortOrder', 'defaultKey', 'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidRoutineActivity(incoming(), userId) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time;
+        allow update: if isSignedIn() && isValidRoutineActivity(incoming(), userId) && isOwner(userId) &&
+                         isValidId(activityId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'title', 'description', 'category', 'startHour', 'startMinute',
+                           'endHour', 'endMinute', 'weekdaysMask', 'repeatWeekly', 'alarmEnabled',
+                           'soundKey', 'announcementText', 'sortOrder', 'defaultKey', 'updatedAt'
+                         ]);
+        allow delete: if isOwner(userId) && isValidId(activityId);
+      }
+
+      match /completions/{recordId} {
+        allow get: if isOwner(userId) && isValidId(recordId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(recordId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'dateKey', 'activityId', 'status', 'completedAtMillis', 'notes',
+                           'quranWirdDone', 'quranMurajaahDone', 'cyclingDistanceKm', 'cyclingDurationMin',
+                           'sleepDurationMin', 'v1Edited', 'v1Uploaded', 'v2Edited', 'v2Uploaded',
+                           'studyMinutes', 'webMinutes', 'workoutCompletedCount', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'dateKey', 'activityId', 'status', 'completedAtMillis', 'notes',
+                           'quranWirdDone', 'quranMurajaahDone', 'cyclingDistanceKm', 'cyclingDurationMin',
+                           'sleepDurationMin', 'v1Edited', 'v1Uploaded', 'v2Edited', 'v2Uploaded',
+                           'studyMinutes', 'webMinutes', 'workoutCompletedCount', 'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidCompletionRecord(incoming(), userId) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time;
+        allow update: if isSignedIn() && isValidCompletionRecord(incoming(), userId) && isOwner(userId) &&
+                         isValidId(recordId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'dateKey', 'activityId', 'status', 'completedAtMillis', 'notes',
+                           'quranWirdDone', 'quranMurajaahDone', 'cyclingDistanceKm', 'cyclingDurationMin',
+                           'sleepDurationMin', 'v1Edited', 'v1Uploaded', 'v2Edited', 'v2Uploaded',
+                           'studyMinutes', 'webMinutes', 'workoutCompletedCount', 'updatedAt'
+                         ]);
+        allow delete: if isOwner(userId) && isValidId(recordId);
+      }
+
+      match /workoutPlans/{planId} {
+        allow get: if isOwner(userId) && isValidId(planId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(planId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'groupName', 'focusArea', 'weekdaysMask', 'restDay',
+                           'exerciseItems', 'createdAt', 'updatedAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'groupName', 'focusArea', 'weekdaysMask', 'restDay',
+                           'exerciseItems', 'createdAt', 'updatedAt'
+                         ]) &&
+                         isValidWorkoutPlan(incoming(), userId) &&
+                         incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time;
+        allow update: if isSignedIn() && isValidWorkoutPlan(incoming(), userId) && isOwner(userId) &&
+                         isValidId(planId) &&
+                         incoming().userId == existing().userId &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                         incoming().diff(existing()).affectedKeys().hasOnly([
+                           'groupName', 'focusArea', 'weekdaysMask', 'restDay', 'exerciseItems', 'updatedAt'
+                         ]);
+        allow delete: if isOwner(userId) && isValidId(planId);
+      }
+    }
+  }
+}
